@@ -1,0 +1,31 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongo-db-service
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb:/data/db
+
+  users-service:
+    depends_on:
+      - mongodb
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    container_name: users-service
+    environment:
+      PYTHONPATH: ${PYTHONPATH}
+    ports:
+      - 8080:80
+    volumes:
+      - type: bind
+        source: ./src/
+        target: /app/src/
+
+volumes:
+  mongodb:
