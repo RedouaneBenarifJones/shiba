@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import AsyncGenerator
+from typing import AsyncGenerator, List, Optional
 from bson.errors import InvalidId
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
@@ -43,7 +43,7 @@ async def db_create_user(user: User):
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=f"MongoDB error: {str(e)}")
 
-async def db_read_user(id: str):
+async def db_read_user(id: str) -> User:
     try:
         collection = db.users
         result = await collection.find_one({ "_id": ObjectId(id) })
@@ -52,15 +52,19 @@ async def db_read_user(id: str):
         user = User(**result)
         return user
     except InvalidId as e:
-            raise HTTPException(status_code=400, detail="Invalid id.")
+        raise ValueError("'_id' is of type ObjectId.")
     except PyMongoError as e:
-        raise HTTPException(status_code=500, detail=f"MongoDB error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-async def db_read_users():
+async def db_read_users(page: int, page_size: int) -> Optional[List[User]]:
     try:
         collection = db.users
-        result = collection.find()
-        users = [User.from_document(user) async for user in result]
-        return users
+        skip = page_size * (page - 1)
+        if skip >= 0:
+            result = collection.find().sort({ "_id": -1 }).skip(skip).limit(page_size + 1)
+            users = [User.from_document(user) async for user in result]
+            return users[:page_size]
+    except ValueError as e:
+        raise ValueError("Page number should be >= 1.")
     except PyMongoError as e:
-        raise HTTPException(status_code=500, detail=f"MongoDB error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
