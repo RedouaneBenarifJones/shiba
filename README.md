@@ -5,10 +5,15 @@ The **users service** is a backend API designed to handle user authentication, r
 
 This service includes the following features:
 
-  - **User Registration**: Allows new users to create accounts.
-  - **User Login**: Authenticates users and provides them with a secure access token (JWT).
-  - **Profile Management**: Users can update their personal details and manage their settings.
-  - **Password Reset**: Provides a mechanism for users to reset their password securely.
-  - **Secure Authentication**: Integrates with OAuth providers (e.g., Google, GitHub) for social login options.
+  - [x] **User Registration**: Allows new users to create accounts.
+  - [ ] **User Login**: Authenticates users and provides them with a secure access token (JWT).
+  - [ ] **Profile Management**: Users can update their personal details and manage their settings.
+  - [ ] **Password Reset**: Provides a mechanism for users to reset their password securely.
+  - [ ] **Secure Authentication**: Integrates with OAuth providers (e.g., Google, GitHub) for social login options.
 
 The User Service is built to scale and integrate seamlessly with other microservices, making it an ideal solution for modern applications requiring robust user management capabilities.
+
+To boostrap the service:
+```shell
+docker compose up --build
+```
