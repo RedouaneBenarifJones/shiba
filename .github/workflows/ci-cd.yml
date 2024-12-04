@@ -14,7 +14,11 @@ jobs:
         uses: actions/checkout@v3
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u  "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-      - name: Build Docker image
+      - name: Build Docker image [nginx]
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/custom-nginx:latest .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/custom-nginx:latest
+      - name: Build Docker image [users service]
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/shiba-users-service-image:latest .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/shiba-users-service-image:latest

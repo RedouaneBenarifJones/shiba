@@ -9,7 +9,7 @@ services:
     volumes:
       - mongodb:/data/db
     networks:
-        - shiba-network
+      - shiba-network
 
   users-service:
     depends_on:
@@ -18,19 +18,22 @@ services:
       context: .
       dockerfile: ./Dockerfile.dev
     env_file:
-        - ./.env
+      - ./.env
     volumes:
       - type: bind
         source: ./src/
         target: /app/src/
     networks:
-        - shiba-network
+      - shiba-network
     deploy:
-      replicas: 7
+      replicas: 1
     labels:
-        app: users-service
+      app: users-service
 
   nginx:
+    build:
+      context: .
+      dockerfile: Docker.nginx
     depends_on:
       - users-service
     image: nginx:latest
@@ -40,11 +43,11 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     networks:
-        - shiba-network
+      - shiba-network
 
 volumes:
   mongodb:
 
 networks:
   shiba-network:
-    driver: bridge 
+    driver: bridge
