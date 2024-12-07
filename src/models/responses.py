@@ -9,9 +9,9 @@ class APISuccessResponse[Data](BaseModel):
     next: Optional[str] = None
     data: Optional[Data] = None
 
+
 class APIFailureResponse(BaseModel):
     status_code: Optional[int]
     type: Optional[str]
     details: Optional[str]
     traceback: Optional[Any]
-

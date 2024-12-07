@@ -1,11 +1,13 @@
 from typing import List, Optional, Annotated
 from fastapi import FastAPI, Request, Query
+from starlette.status import HTTP_200_OK
 from models.user import User
-from models.response import APISuccessResponse
+from models.responses import APISuccessResponse
 from dotenv import load_dotenv
 from utils.db import db_read_user, db_read_users, db_create_user, lifespan
 import logging
 import os
+from models.queries import UsersQueryParams
 
 load_dotenv()
 
@@ -16,22 +18,28 @@ logger = logging.getLogger(__name__)
 import utils.exceptions_handlers
 
 
-# route handlers
+@app.get("/health", status_code=200)
+def health():
+    return {"status": "healthy"}
+
+
 @app.get("/users")
 async def read_users(
-    page: int = Query(default=1, ge=1, title="page number"),
-    page_size: int = Query(default=3, ge=1, title="page size"),
+    filters: Annotated[UsersQueryParams, Query()],
 ) -> Optional[APISuccessResponse[List[User]]]:
-    users = await db_read_users(page=page, page_size=page_size)
+    page = filters.page
+    page_size = filters.page_size
+    users = await db_read_users(filters)
     if users:
         return APISuccessResponse[List[User]](
-            data=users,
-            count=len(users),
-            previous=f"{os.environ["HOSTNAME"]}/users?page={page - 1}&page_size={page_size}"
+            status_code=HTTP_200_OK,
+            data=users[:page_size],
+            count=len(users) - 1 if len(users) > page_size else len(users),
+            previous=f"/users?page={page - 1}&page_size={page_size}"
             if page > 1
             else None,
             next=f"{os.environ["HOSTNAME"]}/users?page={page + 1}&page_size={page_size}"
-            if len(users) > page_size - 1
+            if len(users) > page_size
             else None,
         )
 

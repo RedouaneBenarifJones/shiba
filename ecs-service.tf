@@ -1,5 +1,5 @@
 # Load Balancer
-resource "aws_lb" "load_balancer" {
+resource "aws_alb" "load_balancer" {
   name               = "load-balancer"
   internal           = false
   load_balancer_type = "application"
@@ -28,32 +28,32 @@ resource "aws_security_group" "load_balancer_security_group" {
 }
 
 # HTTP Listener
-resource "aws_lb_listener" "http_listener" {
-  load_balancer_arn = aws_lb.load_balancer.arn
+resource "aws_alb_listener" "http_listener" {
+  load_balancer_arn = aws_alb.load_balancer.arn
   port              = 80
   protocol          = "HTTP"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.target_group.arn
+    target_group_arn = aws_alb_target_group.target_group.arn
   }
 }
 
-# Target Group
-resource "aws_lb_target_group" "target_group" {
+# Target Group 
+resource "aws_alb_target_group" "target_group" {
   name        = "target-group"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = aws_default_vpc.default_vpc.id
   target_type = "ip"
   health_check {
-    path                = "/"
+    path                = "/health"
     healthy_threshold   = 2
     unhealthy_threshold = 10
     timeout             = 60
-    interval            = 300
+    interval            = 120
     matcher             = "200-399"
   }
-  depends_on = [aws_lb.load_balancer]
+  depends_on = [aws_alb.load_balancer]
 }
 
 # ECS Service
@@ -75,9 +75,9 @@ resource "aws_ecs_service" "users_api_service" {
     assign_public_ip = true
   }
   load_balancer {
-    target_group_arn = aws_lb_target_group.target_group.arn
-    container_name   = "nginx"
-    container_port   = 81
+    target_group_arn = aws_alb_target_group.target_group.arn
+    container_name   = "users"
+    container_port   = 80
   }
 
 }
