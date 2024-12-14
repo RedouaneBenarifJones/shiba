@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-shiba
+  namespace: ns-shiba
+data:
+  PYTHONPATH: "src"
+  MONGODB_HOST: "localhost"
+  MONGODB_PORT: "27017"
+  MONGODB_DATABASE: "db"
+  MONGO_INITDB_ROOT_USERNAME: "admin"
+  MONGO_INITDB_ROOT_PASSWORD: "password"
